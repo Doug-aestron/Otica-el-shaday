@@ -1,0 +1,11 @@
+Coloque aqui os arquivos da logo oficial da ótica:
+
+  logo.png           — versão para fundo claro (obrigatório)
+  logo-on-dark.png   — versão clara/branca para a sidebar escura (opcional; se faltar, usa logo.png)
+
+Requisitos do logo.png:
+  - Arquivo PNG ou JPG válido (não renomeie SVG/WebP para .png)
+  - Tamanho > 0 bytes; largura recomendada ≥ 400px
+  - Fundo transparente, se possível
+
+Favicon (opcional): copie logo-icon.png para app/icon.png na raiz do projeto app/

@@ -1,0 +1,176 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root,
+[data-color-theme="blue"] {
+  color-scheme: light;
+  --background: 210 40% 98%;
+  --foreground: 222 47% 11%;
+  --muted: 215 20% 96%;
+  --muted-foreground: 215 16% 40%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --border: 214 32% 91%;
+  --ring: 199 89% 48%;
+  --primary: 199 89% 42%;
+  --primary-foreground: 210 40% 98%;
+  --sidebar: 222 47% 11%;
+  --sidebar-foreground: 210 40% 98%;
+  --sidebar-muted: 215 20% 70%;
+  /* brand — azul (versão atual) */
+  --brand-50: 240 249 255;
+  --brand-100: 224 242 254;
+  --brand-200: 186 230 253;
+  --brand-300: 125 211 252;
+  --brand-400: 56 189 248;
+  --brand-500: 14 165 233;
+  --brand-600: 2 132 199;
+  --brand-700: 3 105 161;
+  --brand-800: 7 89 133;
+  --brand-900: 12 74 110;
+  --brand-950: 8 47 73;
+  --accent-400: 129 140 248;
+  --accent-500: 99 102 241;
+  --accent-600: 79 70 229;
+  --glow-1: 14 165 233;
+  --glow-2: 99 102 241;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-slate-50 text-ink-900 antialiased;
+  background-image:
+    radial-gradient(1200px 600px at 10% -10%, rgb(var(--glow-1) / 0.14), transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, rgb(var(--glow-2) / 0.1), transparent 50%);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Painel — Início: cards flutuantes e hover */
+@keyframes dashboard-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes dashboard-orb-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.12;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 0.22;
+  }
+}
+
+@keyframes dashboard-shine {
+  0% {
+    transform: translateX(-120%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(220%) skewX(-12deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dashboard-card-float {
+    animation: dashboard-float 5.5s ease-in-out infinite;
+  }
+
+  .dashboard-orb-pulse {
+    animation: dashboard-orb-pulse 4s ease-in-out infinite;
+  }
+}
+
+.dashboard-stat-card {
+  @apply relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white/95 p-6 shadow-sm backdrop-blur-sm transition-all duration-300 ease-out;
+}
+
+.dashboard-stat-card::before {
+  content: "";
+  @apply pointer-events-none absolute inset-0 rounded-3xl opacity-0 transition-opacity duration-300;
+  background: linear-gradient(
+    135deg,
+    rgba(14, 165, 233, 0.06) 0%,
+    transparent 45%,
+    rgba(99, 102, 241, 0.05) 100%
+  );
+}
+
+.dashboard-stat-card::after {
+  content: "";
+  @apply pointer-events-none absolute -inset-y-4 -left-1/2 w-1/2 opacity-0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+}
+
+.dashboard-stat-card:hover {
+  @apply -translate-y-2 border-brand-200/90 shadow-[0_20px_50px_-20px_rgba(14,165,233,0.35)];
+  transform: translateY(-8px) scale(1.02);
+}
+
+.dashboard-stat-card:hover::before {
+  @apply opacity-100;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dashboard-stat-card:hover::after {
+    opacity: 1;
+    animation: dashboard-shine 0.75s ease-out forwards;
+  }
+
+  .dashboard-stat-card:hover {
+    animation-play-state: paused;
+  }
+}
+
+.dashboard-stat-card:focus-visible {
+  @apply outline-none ring-2 ring-brand-500 ring-offset-2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-card-float,
+  .dashboard-orb-pulse,
+  .dashboard-welcome {
+    animation: none !important;
+  }
+
+  .dashboard-stat-card:hover,
+  .dashboard-welcome:hover {
+    transform: none;
+  }
+
+  .dashboard-stat-card:hover::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.dashboard-welcome {
+  @apply relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white/90 p-5 shadow-sm backdrop-blur-sm transition-all duration-300 sm:p-6;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .dashboard-welcome {
+    animation: dashboard-float 7s ease-in-out infinite;
+  }
+}
+
+.dashboard-welcome:hover {
+  @apply border-brand-200/80 shadow-md;
+  transform: translateY(-4px) scale(1.005);
+}

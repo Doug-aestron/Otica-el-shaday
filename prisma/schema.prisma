@@ -1,0 +1,237 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // App (ex.: pooler Supabase). Migrações / db push usam directUrl.
+  url       = env("DATABASE_URL")
+  // Conexão direta (5432); necessária para migrate e db push atrás de PgBouncer.
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  RECEPCAO
+  MEDICO
+  VENDEDOR
+}
+
+enum AppointmentStatus {
+  PENDENTE
+  CONFIRMADO
+  REALIZADO
+  AGUARDANDO
+  EM_ATENDIMENTO
+  FINALIZADO
+  CANCELADO
+}
+
+enum SaleStatus {
+  ORCAMENTO
+  VENDIDO
+  PERDIDO
+}
+
+enum CostType {
+  FIXO
+  VARIAVEL
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  passwordHash   String
+  name           String
+  role           Role
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  appointmentsAsDoctor Appointment[] @relation("DoctorAppointments")
+  medicalRecords       MedicalRecord[]
+  sales                Sale[]        @relation("SellerSales")
+  anamnesesAuthored    Anamnesis[]   @relation("AnamnesisAuthor")
+  auditLogs            AuditLog[]
+  prescriptionsAuthored Prescription[] @relation("PrescriptionAuthor")
+  financialCostsAuthored FinancialCost[] @relation("FinancialCostAuthor")
+}
+
+model Patient {
+  id        String    @id @default(cuid())
+  name      String
+  cpf       String?   @unique
+  phone     String?
+  email     String?
+  birthDate DateTime?
+  address   String?
+  notes     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  anamneses      Anamnesis[]
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  prescriptions  Prescription[]
+  sales          Sale[]
+}
+
+model Anamnesis {
+  id         String @id @default(cuid())
+  patientId  String
+  patient    Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  chiefComplaint String?
+  medicalHistory Json?
+
+  usesGlasses     Boolean @default(false)
+  usesContactLens Boolean @default(false)
+  headache        Boolean @default(false)
+  blurredVision   Boolean @default(false)
+  difficultyNear  Boolean @default(false)
+  difficultyFar   Boolean @default(false)
+  diabetes        Boolean @default(false)
+  hypertension    Boolean @default(false)
+
+  allergies       String?
+  medications     String?
+  ocularSurgery   String?
+  familyHistory   String?
+  observations    String?
+
+  lgpdConsent Boolean @default(false)
+
+  createdById String?
+  createdBy   User?   @relation("AnamnesisAuthor", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Appointment {
+  id         String            @id @default(cuid())
+  patientId  String
+  patient    Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId   String?
+  doctor     User?             @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  startsAt   DateTime          @default(now())
+  endsAt     DateTime?
+  /// Início da consulta clínica (status EM_ATENDIMENTO).
+  consultationStartedAt DateTime?
+  /// Fim da consulta clínica (status FINALIZADO).
+  consultationEndedAt   DateTime?
+  status     AppointmentStatus @default(PENDENTE)
+  reason     String?
+  notes      String?
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  medicalRecord MedicalRecord?
+  sales         Sale[]
+
+  @@index([status, startsAt])
+  @@index([status, consultationEndedAt])
+}
+
+model MedicalRecord {
+  id            String   @id @default(cuid())
+  patientId     String
+  patient       Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  appointmentId String? @unique
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  doctorId      String
+  doctor        User     @relation(fields: [doctorId], references: [id])
+  diagnosis     String?
+  clinicalNotes String?
+  conduct       String?
+  followUpAt    DateTime?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  prescriptions Prescription[]
+}
+
+model Prescription {
+  id              String   @id @default(cuid())
+  patientId       String
+  patient         Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId        String
+  doctor          User     @relation("PrescriptionAuthor", fields: [doctorId], references: [id])
+  medicalRecordId String?
+  medicalRecord   MedicalRecord? @relation(fields: [medicalRecordId], references: [id])
+
+  odSphere    String?
+  odCylinder  String?
+  odAxis      Int?
+  odAddition  String?
+  odDnp       String?
+
+  osSphere    String?
+  osCylinder  String?
+  osAxis      Int?
+  osAddition  String?
+  osDnp       String?
+
+  pd         String?
+  lensType   String?
+  notes      String?
+  validUntil DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Sale {
+  id            String     @id @default(cuid())
+  patientId     String?
+  patient       Patient?   @relation(fields: [patientId], references: [id])
+  appointmentId String?
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  sellerId      String
+  seller        User       @relation("SellerSales", fields: [sellerId], references: [id])
+  totalCents    Int        @default(0)
+  product       String?
+  paymentMethod String?
+  status        SaleStatus @default(ORCAMENTO)
+  notes         String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model FinancialCost {
+  id          String   @id @default(cuid())
+  description String
+  amountCents Int
+  type        CostType
+  category    String?
+  referenceAt DateTime
+  notes       String?
+  createdById String
+  createdBy   User     @relation("FinancialCostAuthor", fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SystemSettings {
+  id                 String   @id @default("default")
+  clinicName         String   @default("El Shaday")
+  clinicPhone        String?
+  clinicEmail        String?
+  clinicAddress      String?
+  openingHours       String?
+  appointmentMinutes Int      @default(30)
+  siteWelcomeMessage String?
+  updatedAt          DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  entity    String
+  entityId  String?
+  metadata  Json?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+}
