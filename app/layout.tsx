@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans, Outfit } from "next/font/google";
 import { ColorThemeInit } from "@/components/theme/color-theme-init";
-import { AppProviders } from "./providers";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -29,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR" className={`${outfit.variable} ${dmSans.variable}`} data-color-theme="blue" suppressHydrationWarning>
       <body className="min-h-screen font-sans">
         <ColorThemeInit />
-        <AppProviders>{children}</AppProviders>
+        {children}
       </body>
     </html>
   );

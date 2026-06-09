@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = useMemo(() => searchParams.get("callbackUrl") ?? "/painel", [searchParams]);
 
@@ -41,8 +40,10 @@ export function LoginForm() {
       return;
     }
 
-    router.push(callbackUrl);
-    router.refresh();
+    const safeCallback =
+      callbackUrl.startsWith("/") && !callbackUrl.startsWith("//") ? callbackUrl : "/painel";
+    // Navegação completa garante cookie de sessão antes de carregar o painel (evita race no Vercel).
+    window.location.href = safeCallback;
   }
 
   return (
