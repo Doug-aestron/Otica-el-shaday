@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from "next-auth";
+import type { JWT } from "next-auth/jwt";
 import Credentials from "next-auth/providers/credentials";
 
 export default {
@@ -28,8 +29,9 @@ export default {
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
-        session.user.role = token.role;
+        const t = token as JWT;
+        session.user.id = t.id;
+        session.user.role = t.role;
       }
       return session;
     },

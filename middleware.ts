@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { auth } from "@/auth";
 
 function isSiteUnderDevelopment(): boolean {
   return process.env.SITE_UNDER_DEVELOPMENT === "true";
 }
 
-export async function middleware(req: NextRequest) {
+export default auth((req: NextRequest & { auth: unknown }) => {
   const pathname = req.nextUrl.pathname;
 
   if (isSiteUnderDevelopment()) {
@@ -15,23 +15,14 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  if (!pathname.startsWith("/painel")) {
-    return NextResponse.next();
-  }
-
-  const token = await getToken({
-    req,
-    secret: process.env.AUTH_SECRET,
-  });
-
-  if (!token) {
+  if (pathname.startsWith("/painel") && !req.auth) {
     const url = new URL("/login", req.url);
-    url.searchParams.set("callbackUrl", req.nextUrl.pathname);
+    url.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
-}
+});
 
 export const config = {
   matcher: ["/painel/:path*", "/privacidade", "/api/public/:path*"],
