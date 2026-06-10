@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { centsToReaisInput, formatCentsBRL } from "@/lib/formatting-money";
 import { formatDateTimePtBR } from "@/lib/formatting";
 import { COST_CATEGORIES } from "@/lib/validation/finance";
-import { PAYMENT_METHOD_OPTIONS } from "@/lib/validation/sale";
 import {
   BarChart3,
   FileSpreadsheet,
@@ -91,11 +90,6 @@ function defaultMonthRange(): { from: string; to: string } {
     from: `${y}-${String(m).padStart(2, "0")}-01`,
     to: `${y}-${String(m).padStart(2, "0")}-${String(last).padStart(2, "0")}`,
   };
-}
-
-function paymentLabel(v: string | null): string {
-  if (!v) return "—";
-  return PAYMENT_METHOD_OPTIONS.find((o) => o.value === v)?.label ?? v;
 }
 
 const TABS: { id: TabId; label: string; icon: typeof Wallet }[] = [

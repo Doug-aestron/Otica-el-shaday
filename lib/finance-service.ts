@@ -163,12 +163,16 @@ export async function getDemonstrativo(period: FinancePeriod): Promise<Demonstra
     }),
   ]);
 
-  const custosFixos = costs
-    .filter((c) => c.type === COST_TYPE.FIXO)
-    .map(({ type: _t, ...rest }) => rest);
-  const custosVariaveis = costs
-    .filter((c) => c.type === COST_TYPE.VARIAVEL)
-    .map(({ type: _t, ...rest }) => rest);
+  const mapCostRow = (c: (typeof costs)[number]) => ({
+    id: c.id,
+    referenceAt: c.referenceAt,
+    description: c.description,
+    amountCents: c.amountCents,
+    category: c.category,
+  });
+
+  const custosFixos = costs.filter((c) => c.type === COST_TYPE.FIXO).map(mapCostRow);
+  const custosVariaveis = costs.filter((c) => c.type === COST_TYPE.VARIAVEL).map(mapCostRow);
 
   return {
     ...summary,

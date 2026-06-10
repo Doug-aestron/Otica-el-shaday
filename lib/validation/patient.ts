@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { digitsOnly, normalizeCpfInput } from "@/lib/strings";
+import { normalizeCpfInput } from "@/lib/strings";
 
 const optionalEmail = z.preprocess(
   (v) => (typeof v === "string" && v.trim() === "" ? undefined : v),

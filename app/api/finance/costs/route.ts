@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
-import { COST_TYPE, isCostTypeValue } from "@/lib/cost-type";
+import { isCostTypeValue } from "@/lib/cost-type";
 import { prisma } from "@/lib/prisma";
 import { requirePermissionApi } from "@/lib/api-auth";
 import { canAccessFinance } from "@/lib/finance-access";

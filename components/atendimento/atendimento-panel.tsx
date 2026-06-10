@@ -24,17 +24,6 @@ import { appointmentsListUrl, QUEUE_STATUS_FILTER } from "@/lib/appointments-que
 import { useVisiblePolling } from "@/lib/hooks/use-visible-polling";
 import { usePatientSearch } from "@/lib/hooks/use-patient-search";
 import { sortAppointmentRows, upsertAppointmentRow } from "@/lib/merge-appointment-rows";
-
-type PatientMini = { id: string; name: string; phone: string | null; cpf: string | null };
-
-type MedicalSnapshot = {
-  id: string;
-  diagnosis: string | null;
-  clinicalNotes: string | null;
-  conduct: string | null;
-  followUpAt: Date | string | null;
-} | null;
-
 import type { AppointmentRow } from "@/lib/appointment-types";
 
 export type { AppointmentRow } from "@/lib/appointment-types";
@@ -45,16 +34,6 @@ const QUEUE_STATUSES: AppointmentStatus[] = [
   AppointmentStatus.FINALIZADO,
   AppointmentStatus.CANCELADO,
 ];
-
-const STATUS_ORDER: Record<AppointmentStatus, number> = {
-  [AppointmentStatus.PENDENTE]: 99,
-  [AppointmentStatus.CONFIRMADO]: 99,
-  [AppointmentStatus.REALIZADO]: 99,
-  [AppointmentStatus.AGUARDANDO]: 0,
-  [AppointmentStatus.EM_ATENDIMENTO]: 1,
-  [AppointmentStatus.FINALIZADO]: 2,
-  [AppointmentStatus.CANCELADO]: 3,
-};
 
 function statusLabel(s: AppointmentStatus): string {
   const map: Record<AppointmentStatus, string> = {

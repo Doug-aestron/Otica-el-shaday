@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Construction, LogIn } from "lucide-react";
+import { LogIn } from "lucide-react";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { buttonClassName } from "@/components/ui/button";
 
