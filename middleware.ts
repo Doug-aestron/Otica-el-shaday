@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { auth } from "@/auth";
+import { getToken } from "next-auth/jwt";
 
 function isSiteUnderDevelopment(): boolean {
   return process.env.SITE_UNDER_DEVELOPMENT === "true";
 }
 
-export default auth((req: NextRequest & { auth: unknown }) => {
+export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   if (isSiteUnderDevelopment()) {
@@ -15,14 +15,27 @@ export default auth((req: NextRequest & { auth: unknown }) => {
     }
   }
 
-  if (pathname.startsWith("/painel") && !req.auth) {
+  if (!pathname.startsWith("/painel")) {
+    return NextResponse.next();
+  }
+
+  // Em HTTPS (Vercel), o cookie de sessão usa o prefixo __Secure-.
+  const isSecure = req.nextUrl.protocol === "https:";
+
+  const token = await getToken({
+    req,
+    secret: process.env.AUTH_SECRET,
+    secureCookie: isSecure,
+  });
+
+  if (!token) {
     const url = new URL("/login", req.url);
     url.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(url);
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/painel/:path*", "/privacidade", "/api/public/:path*"],
