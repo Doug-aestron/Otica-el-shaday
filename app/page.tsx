@@ -6,6 +6,9 @@ import { PublicBookingForm } from "@/components/public/public-booking-form";
 import { SiteUnderDevelopmentPage } from "@/components/public/site-under-development-page";
 import { isSiteUnderDevelopment } from "@/lib/site-mode";
 
+/** Lê SITE_UNDER_DEVELOPMENT em runtime (Vercel), não só no build. */
+export const dynamic = "force-dynamic";
+
 export default function HomePage() {
   if (isSiteUnderDevelopment()) {
     return <SiteUnderDevelopmentPage />;
